@@ -10,6 +10,99 @@ const CATEGORIAS    = [
   'Materiales','Servicios','Mantenimiento','Otros'
 ];
 
+// ─── DEMO DATA ─────────────────────────────────────────────────────────────
+const DEMO_EMPLEADOS  = ['Marta','Joel','Giorgio','Daniel','Emma'];
+const DEMO_LOCATIONS  = ['Aventura','Brickell','Downtown','Coconut Grove','Wynwood'];
+const DEMO_CATS       = ['Meals','Music & Entertainment','Parking','Fuel','Prints & Materials'];
+const DEMO_MESES      = [
+  {val:'2026-01',label:'Enero 2026'},{val:'2026-02',label:'Febrero 2026'},
+  {val:'2026-03',label:'Marzo 2026'},{val:'2026-04',label:'Abril 2026'},
+  {val:'2026-05',label:'Mayo 2026'},{val:'2026-06',label:'Junio 2026'},
+  {val:'2026-07',label:'Julio 2026'},{val:'2026-08',label:'Agosto 2026'},
+  {val:'2026-09',label:'Septiembre 2026'},{val:'2026-10',label:'Octubre 2026'},
+  {val:'2026-11',label:'Noviembre 2026'},{val:'2026-12',label:'Diciembre 2026'},
+];
+const CHART_COLORS = ['#c4956a','#7a9e87','#9e7a87','#7a9ea0','#a09e7a','#c47a7a','#7a87a0'];
+const DEMO_GASTOS = [
+  // Enero
+  {empleado:'Marta',   location:'Aventura',      mes:'2026-01', categoria:'Meals',                 monto:120},
+  {empleado:'Joel',    location:'Brickell',       mes:'2026-01', categoria:'Parking',               monto:45},
+  {empleado:'Giorgio', location:'Downtown',       mes:'2026-01', categoria:'Fuel',                  monto:95},
+  {empleado:'Daniel',  location:'Coconut Grove',  mes:'2026-01', categoria:'Meals',                 monto:210},
+  {empleado:'Emma',    location:'Wynwood',        mes:'2026-01', categoria:'Music & Entertainment', monto:180},
+  // Febrero
+  {empleado:'Marta',   location:'Brickell',       mes:'2026-02', categoria:'Fuel',                  monto:88},
+  {empleado:'Joel',    location:'Downtown',       mes:'2026-02', categoria:'Meals',                 monto:155},
+  {empleado:'Giorgio', location:'Aventura',       mes:'2026-02', categoria:'Prints & Materials',    monto:320},
+  {empleado:'Daniel',  location:'Wynwood',        mes:'2026-02', categoria:'Music & Entertainment', monto:250},
+  {empleado:'Emma',    location:'Coconut Grove',  mes:'2026-02', categoria:'Parking',               monto:60},
+  // Marzo
+  {empleado:'Marta',   location:'Downtown',       mes:'2026-03', categoria:'Meals',                 monto:175},
+  {empleado:'Joel',    location:'Coconut Grove',  mes:'2026-03', categoria:'Prints & Materials',    monto:410},
+  {empleado:'Giorgio', location:'Wynwood',        mes:'2026-03', categoria:'Music & Entertainment', monto:295},
+  {empleado:'Daniel',  location:'Brickell',       mes:'2026-03', categoria:'Fuel',                  monto:110},
+  {empleado:'Emma',    location:'Aventura',       mes:'2026-03', categoria:'Meals',                 monto:140},
+  {empleado:'Marta',   location:'Wynwood',        mes:'2026-03', categoria:'Parking',               monto:55},
+  // Abril
+  {empleado:'Marta',   location:'Brickell',       mes:'2026-04', categoria:'Meals',                 monto:195},
+  {empleado:'Joel',    location:'Aventura',       mes:'2026-04', categoria:'Fuel',                  monto:75},
+  {empleado:'Giorgio', location:'Brickell',       mes:'2026-04', categoria:'Meals',                 monto:145.50},
+  {empleado:'Giorgio', location:'Downtown',       mes:'2026-04', categoria:'Parking',               monto:85},
+  {empleado:'Daniel',  location:'Wynwood',        mes:'2026-04', categoria:'Prints & Materials',    monto:380},
+  {empleado:'Emma',    location:'Coconut Grove',  mes:'2026-04', categoria:'Music & Entertainment', monto:220},
+  {empleado:'Joel',    location:'Brickell',       mes:'2026-04', categoria:'Meals',                 monto:130},
+  {empleado:'Marta',   location:'Downtown',       mes:'2026-04', categoria:'Parking',               monto:40},
+  // Mayo
+  {empleado:'Marta',   location:'Aventura',       mes:'2026-05', categoria:'Meals',                 monto:160},
+  {empleado:'Joel',    location:'Wynwood',        mes:'2026-05', categoria:'Music & Entertainment', monto:300},
+  {empleado:'Giorgio', location:'Coconut Grove',  mes:'2026-05', categoria:'Fuel',                  monto:92},
+  {empleado:'Daniel',  location:'Brickell',       mes:'2026-05', categoria:'Meals',                 monto:185},
+  {empleado:'Emma',    location:'Downtown',       mes:'2026-05', categoria:'Prints & Materials',    monto:445},
+  {empleado:'Giorgio', location:'Aventura',       mes:'2026-05', categoria:'Parking',               monto:65},
+  // Junio
+  {empleado:'Marta',   location:'Coconut Grove',  mes:'2026-06', categoria:'Fuel',                  monto:105},
+  {empleado:'Joel',    location:'Downtown',       mes:'2026-06', categoria:'Prints & Materials',    monto:360},
+  {empleado:'Giorgio', location:'Brickell',       mes:'2026-06', categoria:'Meals',                 monto:210},
+  {empleado:'Daniel',  location:'Aventura',       mes:'2026-06', categoria:'Music & Entertainment', monto:275},
+  {empleado:'Emma',    location:'Wynwood',        mes:'2026-06', categoria:'Parking',               monto:50},
+  // Julio
+  {empleado:'Marta',   location:'Wynwood',        mes:'2026-07', categoria:'Music & Entertainment', monto:230},
+  {empleado:'Joel',    location:'Aventura',       mes:'2026-07', categoria:'Meals',                 monto:145},
+  {empleado:'Giorgio', location:'Downtown',       mes:'2026-07', categoria:'Prints & Materials',    monto:290},
+  {empleado:'Daniel',  location:'Coconut Grove',  mes:'2026-07', categoria:'Fuel',                  monto:115},
+  {empleado:'Emma',    location:'Brickell',       mes:'2026-07', categoria:'Meals',                 monto:175},
+  // Agosto
+  {empleado:'Marta',   location:'Downtown',       mes:'2026-08', categoria:'Parking',               monto:70},
+  {empleado:'Joel',    location:'Brickell',       mes:'2026-08', categoria:'Music & Entertainment', monto:315},
+  {empleado:'Giorgio', location:'Wynwood',        mes:'2026-08', categoria:'Meals',                 monto:185},
+  {empleado:'Daniel',  location:'Aventura',       mes:'2026-08', categoria:'Prints & Materials',    monto:420},
+  {empleado:'Emma',    location:'Coconut Grove',  mes:'2026-08', categoria:'Fuel',                  monto:98},
+  // Septiembre
+  {empleado:'Marta',   location:'Brickell',       mes:'2026-09', categoria:'Meals',                 monto:200},
+  {empleado:'Joel',    location:'Coconut Grove',  mes:'2026-09', categoria:'Parking',               monto:55},
+  {empleado:'Giorgio', location:'Aventura',       mes:'2026-09', categoria:'Music & Entertainment', monto:260},
+  {empleado:'Daniel',  location:'Downtown',       mes:'2026-09', categoria:'Fuel',                  monto:100},
+  {empleado:'Emma',    location:'Wynwood',        mes:'2026-09', categoria:'Meals',                 monto:165},
+  // Octubre
+  {empleado:'Marta',   location:'Aventura',       mes:'2026-10', categoria:'Prints & Materials',    monto:380},
+  {empleado:'Joel',    location:'Wynwood',        mes:'2026-10', categoria:'Fuel',                  monto:85},
+  {empleado:'Giorgio', location:'Coconut Grove',  mes:'2026-10', categoria:'Meals',                 monto:220},
+  {empleado:'Daniel',  location:'Brickell',       mes:'2026-10', categoria:'Music & Entertainment', monto:290},
+  {empleado:'Emma',    location:'Downtown',       mes:'2026-10', categoria:'Parking',               monto:65},
+  // Noviembre
+  {empleado:'Marta',   location:'Downtown',       mes:'2026-11', categoria:'Music & Entertainment', monto:240},
+  {empleado:'Joel',    location:'Coconut Grove',  mes:'2026-11', categoria:'Meals',                 monto:190},
+  {empleado:'Giorgio', location:'Brickell',       mes:'2026-11', categoria:'Fuel',                  monto:110},
+  {empleado:'Daniel',  location:'Wynwood',        mes:'2026-11', categoria:'Prints & Materials',    monto:465},
+  {empleado:'Emma',    location:'Aventura',       mes:'2026-11', categoria:'Parking',               monto:75},
+  // Diciembre
+  {empleado:'Marta',   location:'Wynwood',        mes:'2026-12', categoria:'Fuel',                  monto:95},
+  {empleado:'Joel',    location:'Brickell',       mes:'2026-12', categoria:'Prints & Materials',    monto:395},
+  {empleado:'Giorgio', location:'Downtown',       mes:'2026-12', categoria:'Meals',                 monto:255},
+  {empleado:'Daniel',  location:'Aventura',       mes:'2026-12', categoria:'Music & Entertainment', monto:310},
+  {empleado:'Emma',    location:'Coconut Grove',  mes:'2026-12', categoria:'Meals',                 monto:180},
+];
+
 // ─── STATE ─────────────────────────────────────────────────────────────────
 let state = { tarjetas: [], gastos: [], empleados: [] };
 let currentUser   = null;   // { id, nombre, is_admin, tarjeta_id, ... }
@@ -633,16 +726,164 @@ function gastoCardHTML(g, showEmp = false) {
     </div>`;
 }
 
+// ─── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const fEmp  = document.getElementById('d-emp')?.value  || '';
+  const fLoc  = document.getElementById('d-loc')?.value  || '';
+  const fMes  = document.getElementById('d-mes')?.value  || '';
+  const fCat  = document.getElementById('d-cat')?.value  || '';
+  const fGroup= document.getElementById('d-group')?.value|| 'empleado';
+
+  let data = DEMO_GASTOS;
+  if (fEmp) data = data.filter(g => g.empleado  === fEmp);
+  if (fLoc) data = data.filter(g => g.location  === fLoc);
+  if (fMes) data = data.filter(g => g.mes       === fMes);
+  if (fCat) data = data.filter(g => g.categoria === fCat);
+
+  const total = data.reduce((s, g) => s + g.monto, 0);
+  const count = data.length;
+  const avg   = count ? total / count : 0;
+
+  // group for chart
+  const groupMap = {};
+  data.forEach(g => {
+    const key = fGroup === 'empleado'  ? g.empleado
+              : fGroup === 'location'  ? g.location
+              : fGroup === 'categoria' ? g.categoria
+              : (DEMO_MESES.find(m => m.val === g.mes)?.label || g.mes);
+    groupMap[key] = (groupMap[key] || 0) + g.monto;
+  });
+  const segments = Object.entries(groupMap)
+    .sort((a,b) => b[1]-a[1])
+    .map(([ label, value ], i) => ({ label, value, color: CHART_COLORS[i % CHART_COLORS.length] }));
+
+  const content = document.getElementById('dashboard-content');
+  if (!content) return;
+
+  content.innerHTML = `
+    <div class="dash-stats">
+      <div class="stat-chip"><span class="stat-val">${fmtPeso(total)}</span><span class="stat-lbl">Total</span></div>
+      <div class="stat-chip"><span class="stat-val">${count}</span><span class="stat-lbl">Registros</span></div>
+      <div class="stat-chip"><span class="stat-val">${fmtPeso(avg)}</span><span class="stat-lbl">Promedio</span></div>
+    </div>
+    ${segments.length ? `
+    <div class="dash-chart-wrap">
+      <canvas id="pie-canvas" width="220" height="220"></canvas>
+      <div class="dash-legend">
+        ${segments.map(s => `
+          <div class="dash-legend-item">
+            <span class="dash-legend-dot" style="background:${s.color}"></span>
+            <span class="dash-legend-label">${s.label}</span>
+            <span class="dash-legend-val">${fmtPeso(s.value)}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : `<div class="empty-state" style="padding:40px">Sin datos para los filtros seleccionados</div>`}
+    ${data.length ? `
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>Empleado</th><th>Location</th><th>Mes</th><th>Categoría</th><th>Monto</th></tr></thead>
+        <tbody>
+          ${data.map(g => `<tr>
+            <td>${g.empleado}</td>
+            <td>${g.location}</td>
+            <td>${DEMO_MESES.find(m=>m.val===g.mes)?.label||g.mes}</td>
+            <td>${g.categoria}</td>
+            <td class="dash-td-monto">${fmtPeso(g.monto)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : ''}`;
+
+  if (segments.length) {
+    requestAnimationFrame(() => drawPieChart('pie-canvas', segments));
+  }
+}
+
+function drawPieChart(canvasId, segments) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const r  = Math.min(cx, cy) - 8;
+  const ri = r * 0.48; // donut hole
+
+  ctx.clearRect(0, 0, W, H);
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  if (!total) return;
+
+  let angle = -Math.PI / 2;
+  segments.forEach(seg => {
+    const slice = (seg.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = '#d5cfb1';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    angle += slice;
+  });
+
+  // donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, ri, 0, Math.PI * 2);
+  ctx.fillStyle = '#d5cfb1';
+  ctx.fill();
+
+  // center label
+  ctx.fillStyle = '#3d3b2e';
+  ctx.font = 'bold 13px DM Sans, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(fmtPeso(total).replace('$','$'), cx, cy);
+}
+
+function renderDashboardShell() {
+  return `
+    <div class="dash-wrap">
+      <div class="dash-filters">
+        <select id="d-emp"   onchange="renderDashboard()">
+          <option value="">Todos los empleados</option>
+          ${DEMO_EMPLEADOS.map(e=>`<option>${e}</option>`).join('')}
+        </select>
+        <select id="d-loc"   onchange="renderDashboard()">
+          <option value="">Todas las locations</option>
+          ${DEMO_LOCATIONS.map(l=>`<option>${l}</option>`).join('')}
+        </select>
+        <select id="d-mes"   onchange="renderDashboard()">
+          <option value="">Todos los meses</option>
+          ${DEMO_MESES.map(m=>`<option value="${m.val}">${m.label}</option>`).join('')}
+        </select>
+        <select id="d-cat"   onchange="renderDashboard()">
+          <option value="">Todas las categorías</option>
+          ${DEMO_CATS.map(c=>`<option>${c}</option>`).join('')}
+        </select>
+        <select id="d-group" onchange="renderDashboard()">
+          <option value="empleado">Agrupar por empleado</option>
+          <option value="location">Agrupar por location</option>
+          <option value="categoria">Agrupar por categoría</option>
+          <option value="mes">Agrupar por mes</option>
+        </select>
+      </div>
+      <div id="dashboard-content"></div>
+    </div>`;
+}
+
 // ─── ADMIN SCREEN ──────────────────────────────────────────────────────────
-function renderAdmin(tab = 'gastos') {
+function renderAdmin(tab = 'dashboard') {
   const app = document.getElementById('app');
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard' },
     { id: 'gastos',    label: 'Gastos'    },
     { id: 'tarjetas',  label: 'Tarjetas'  },
     { id: 'empleados', label: 'Empleados' },
   ];
 
   let content = '';
+  if (tab === 'dashboard') content = renderDashboardShell();
   if (tab === 'gastos')    content = renderAdminGastosHTML();
   if (tab === 'tarjetas')  content = renderAdminTarjetasHTML();
   if (tab === 'empleados') content = renderAdminEmpleadosHTML();
@@ -661,6 +902,8 @@ function renderAdmin(tab = 'gastos') {
         ${content}
       </div>
     </div>`;
+
+  if (tab === 'dashboard') renderDashboard();
 }
 
 // ADMIN — GASTOS ─────────────────────────────────────────────────────────────
