@@ -548,7 +548,8 @@ function renderEmpleado(tab = 'nuevo') {
       </div>
     </div>`;
 
-  if (tab === 'nuevo') bindNuevoGasto();
+  if (tab === 'nuevo')    bindNuevoGasto();
+  if (tab === 'historial') filterHistorial();
 }
 
 function renderNuevoGastoHTML() {
@@ -587,7 +588,7 @@ function renderNuevoGastoHTML() {
         </div>
       </div>
       <div class="field">
-        <label>Foto del comprobante <span class="field-opt">(opcional)</span></label>
+        <label>Foto del comprobante</label>
         <div class="photo-area" id="photo-area" onclick="document.getElementById('photo-input').click()">
           <div class="photo-placeholder" id="photo-placeholder">
             <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -633,6 +634,7 @@ async function submitGasto() {
   if (!location)                 { toast('Seleccioná la location', 'error'); return; }
   if (!cat)                      { toast('Seleccioná una categoría', 'error'); return; }
   if (!monto || monto <= 0)      { toast('Ingresá un monto válido (entero positivo)', 'error'); return; }
+  if (!_photoFile)               { toast('El comprobante es obligatorio', 'error'); return; }
 
   const btn = document.getElementById('btn-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
@@ -678,39 +680,49 @@ function renderHistorialHTML() {
   const totalMes = estesMes.reduce((s, g) => s + Number(g.monto || 0), 0);
   const pendientes = estesMes.filter(g => g.aprobado === null).length;
 
-  const tarjeta = state.tarjetas.find(t => t.id === currentUser.tarjeta_id);
-  const limite   = tarjeta ? Number(tarjeta.limite || 0) : 0;
-  const pct      = limite > 0 ? Math.min(100, Math.round(totalMes * 100 / limite)) : 0;
+  // build month options from actual gastos
+  const mesesSet = [...new Set(misGastos.map(g => g.fecha?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const mesesOpts = mesesSet.map(m => {
+    const [y,mo] = m.split('-');
+    const names = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `<option value="${m}">${names[parseInt(mo)]} ${y}</option>`;
+  }).join('');
 
-  const gastosHTML = misGastos.length
-    ? misGastos.map(g => gastoCardHTML(g)).join('')
-    : `<div class="empty-state">No registraste gastos aún</div>`;
+  const catOpts = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
 
   return `
     <div class="historial-wrap">
       <div class="stats-row">
-        <div class="stat-chip">
-          <span class="stat-val">${fmtPeso(totalMes)}</span>
-          <span class="stat-lbl">Gasto mes</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-val">${pendientes}</span>
-          <span class="stat-lbl">Pendientes</span>
-        </div>
-        ${limite > 0 ? `<div class="stat-chip">
-          <span class="stat-val">${pct}%</span>
-          <span class="stat-lbl">Del límite</span>
-        </div>` : ''}
+        <div class="stat-chip"><span class="stat-val">${fmtPeso(totalMes)}</span><span class="stat-lbl">Gasto mes</span></div>
+        <div class="stat-chip"><span class="stat-val">${pendientes}</span><span class="stat-lbl">Pendientes</span></div>
       </div>
-      ${limite > 0 ? `<div class="progress-bar-track"><div class="progress-bar-fill" style="width:${pct}%"></div></div>` : ''}
-      <div class="gastos-list">${gastosHTML}</div>
+      <div class="filter-bar">
+        <select id="h-cat" onchange="filterHistorial()">
+          <option value="">Todas las categorías</option>${catOpts}
+        </select>
+        <select id="h-mes" onchange="filterHistorial()">
+          <option value="">Todos los meses</option>${mesesOpts}
+        </select>
+      </div>
+      <div id="historial-list" class="gastos-list"></div>
     </div>`;
 }
 
+function filterHistorial() {
+  const fCat = document.getElementById('h-cat')?.value || '';
+  const fMes = document.getElementById('h-mes')?.value || '';
+  let gastos = state.gastos.filter(g => g.empleado_id === currentUser.id);
+  if (fCat) gastos = gastos.filter(g => g.categoria === fCat);
+  if (fMes) gastos = gastos.filter(g => g.fecha?.startsWith(fMes));
+  const list = document.getElementById('historial-list');
+  if (list) list.innerHTML = gastos.length
+    ? gastos.map(g => gastoCardHTML(g)).join('')
+    : `<div class="empty-state">Sin gastos para los filtros seleccionados</div>`;
+}
+
 function gastoCardHTML(g, showEmp = false) {
-  const hasPhoto = g.foto_url;
   return `
-    <div class="gasto-card">
+    <div class="gasto-card" onclick="openGastoDetail('${g.id}')" style="cursor:pointer">
       <div class="gasto-card-top">
         <div class="gasto-meta">
           ${catChip(g.categoria)}
@@ -718,14 +730,32 @@ function gastoCardHTML(g, showEmp = false) {
         </div>
         <span class="gasto-monto">${fmtPeso(g.monto)}</span>
       </div>
-      <div class="gasto-desc">${g.descripcion || ''}</div>
+      ${g.descripcion ? `<div class="gasto-desc">${g.descripcion}</div>` : ''}
       <div class="gasto-card-bottom">
         <span class="gasto-fecha">${fmtDate(g.fecha)}</span>
         ${showEmp ? `<span class="gasto-emp">${empNombre(g.empleado_id)}</span>` : ''}
-        ${tarjetaChip(g.tarjeta_id)}
-        ${hasPhoto ? `<button class="btn-icon photo-btn" onclick="showLightbox('${g.foto_url}')" title="Ver ticket">&#128247;</button>` : ''}
+        ${g.location ? `<span class="chip-cat">${g.location}</span>` : ''}
       </div>
     </div>`;
+}
+
+function openGastoDetail(id) {
+  const g = state.gastos.find(x => x.id === id);
+  if (!g) return;
+  openModal(`
+    <h3 style="margin-bottom:16px">Detalle del gasto</h3>
+    <div class="detail-grid">
+      <div class="detail-row"><span class="detail-lbl">Estado</span>${statusBadge(g)}</div>
+      <div class="detail-row"><span class="detail-lbl">Fecha de reporte</span><span>${fmtDate(g.fecha_reporte || g.created_at?.slice(0,10))}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Fecha comprobante</span><span>${fmtDate(g.fecha)}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Location</span><span>${g.location || '—'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Categoría</span>${catChip(g.categoria)}</div>
+      ${g.descripcion ? `<div class="detail-row"><span class="detail-lbl">Descripción</span><span>${g.descripcion}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-lbl">Monto</span><span class="detail-monto">${fmtPeso(g.monto)}</span></div>
+    </div>
+    ${g.foto_url ? `<img src="${g.foto_url}" onclick="showLightbox('${g.foto_url}')" class="detail-photo" alt="comprobante">` : ''}
+    <button class="btn-outline btn-full" style="margin-top:16px" onclick="closeModal()">Cerrar</button>
+  `);
 }
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
