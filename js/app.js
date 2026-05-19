@@ -1,8 +1,8 @@
 /* TarjetasApp — main application */
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://eqenqgrqvjithlayrezv.supabase.co';
-const SUPABASE_KEY  = 'TU_ANON_KEY_AQUI';
+const SUPABASE_URL  = 'https://qcmrklucngcldvydaxlk.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbXJrbHVjbmdjbGR2eWRheGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMjc5NDUsImV4cCI6MjA5NDgwMzk0NX0.3rjdRhY6L-W0XqzZDvzjTZ8UPYVY-W1dZG_Y63ts2r4';
 const STORAGE_KEY   = 'tarjetasapp_v1';
 const BUCKET        = 'tarjetas-fotos';
 const CATEGORIAS    = [
