@@ -93,6 +93,22 @@ img { max-width: 100%; display: block; }
   background: var(--dark); color: var(--accent); border-radius: 20px;
 }
 
+/* PIN inline section */
+.pin-section {
+  border-top: 1px solid var(--light);
+  margin-top: 16px; padding-top: 16px;
+}
+.pin-section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.pin-back-link {
+  font-size: 13px; color: var(--muted); cursor: pointer;
+  padding: 4px 0; background: none; border: none; font-family: var(--font);
+}
+.pin-back-link:hover { color: var(--dark); }
+.pin-section-name { font-size: 15px; font-weight: 600; color: var(--dark); }
+.emp-btn.selected { border-color: var(--accent); background: var(--white); }
+
 /* PIN step */
 .back-link {
   font-size: 13px; color: var(--muted); margin-bottom: 16px;

@@ -340,7 +340,26 @@ function renderWelcome() {
         <div class="welcome-logo">${logoSVG()}</div>
         <h1 class="welcome-title">TarjetasApp</h1>
         <p class="welcome-sub">Gestión de gastos corporativos</p>
-        <div class="emp-list">${empList}</div>
+        <div class="emp-list" id="emp-list">${empList}</div>
+        <div class="pin-section hidden" id="pin-section">
+          <div class="pin-section-header">
+            <button class="pin-back-link" onclick="backToList()">&#8592; Volver</button>
+            <span class="pin-section-name" id="pin-section-name"></span>
+          </div>
+          <div class="pin-dots" id="pin-dots">
+            <span class="pin-dot" id="pd0"></span>
+            <span class="pin-dot" id="pd1"></span>
+            <span class="pin-dot" id="pd2"></span>
+            <span class="pin-dot" id="pd3"></span>
+          </div>
+          <div id="pin-error" class="pin-error hidden">PIN incorrecto</div>
+          <div class="pin-grid">
+            ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => k === ''
+              ? '<span></span>'
+              : `<button class="pin-key" onclick="pinPress('${k}')">${k}</button>`
+            ).join('')}
+          </div>
+        </div>
         ${renderInstallBtn()}
       </div>
     </div>`;
@@ -348,52 +367,45 @@ function renderWelcome() {
 
 function logoSVG() {
   return `<svg viewBox="0 0 64 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="42">
-    <rect x="2" y="6" width="60" height="36" rx="6" fill="#af9e78"/>
-    <rect x="2" y="16" width="60" height="10" fill="#3a2e1e" opacity=".35"/>
-    <rect x="10" y="30" width="20" height="7" rx="2" fill="#fbe8c0" opacity=".7"/>
-    <circle cx="50" cy="33" r="5" fill="#e8d6ae" opacity=".6"/>
-    <circle cx="56" cy="33" r="5" fill="#af9e78" opacity=".85"/>
+    <rect x="2" y="6" width="60" height="36" rx="6" fill="#b1ab8e"/>
+    <rect x="2" y="16" width="60" height="10" fill="#3d3b2e" opacity=".35"/>
+    <rect x="10" y="30" width="20" height="7" rx="2" fill="#d5cfb1" opacity=".7"/>
+    <circle cx="50" cy="33" r="5" fill="#c3bda0" opacity=".6"/>
+    <circle cx="56" cy="33" r="5" fill="#b1ab8e" opacity=".85"/>
   </svg>`;
 }
 
 function selectEmp(id) {
   _selectedEmpId = id;
+  _pendingPin = '';
   const emp = state.empleados.find(e => e.id === id);
   if (!emp) return;
-  renderPinPad(emp);
-}
 
-function renderPinPad(emp) {
-  _pendingPin = '';
-  const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="welcome-wrap">
-      <div class="welcome-card">
-        <button class="btn-icon back-btn" onclick="backToList()" title="Volver">&#8592;</button>
-        <div class="emp-avatar large">${emp.nombre.charAt(0).toUpperCase()}</div>
-        <h2 class="pin-name">${emp.nombre}</h2>
-        <div class="pin-dots" id="pin-dots">
-          <span class="pin-dot" id="pd0"></span>
-          <span class="pin-dot" id="pd1"></span>
-          <span class="pin-dot" id="pd2"></span>
-          <span class="pin-dot" id="pd3"></span>
-        </div>
-        <p class="pin-label">Ingresá tu PIN de 4 dígitos</p>
-        <div id="pin-error" class="pin-error hidden">PIN incorrecto</div>
-        <div class="pin-grid">
-          ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => k === ''
-            ? '<span></span>'
-            : `<button class="pin-key" onclick="pinPress('${k}')">${k}</button>`
-          ).join('')}
-        </div>
-      </div>
-    </div>`;
+  // highlight selected
+  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector(`.emp-btn[onclick="selectEmp('${id}')"]`);
+  if (btn) btn.classList.add('selected');
+
+  // show pin section
+  const pinSection = document.getElementById('pin-section');
+  const nameEl = document.getElementById('pin-section-name');
+  if (nameEl) nameEl.textContent = emp.nombre;
+  if (pinSection) pinSection.classList.remove('hidden');
+  updatePinDots();
+
+  // scroll down to PIN
+  pinSection && pinSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function backToList() {
   _pendingPin = '';
   _selectedEmpId = null;
-  renderWelcome();
+  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('selected'));
+  const pinSection = document.getElementById('pin-section');
+  const errEl = document.getElementById('pin-error');
+  if (pinSection) pinSection.classList.add('hidden');
+  if (errEl) errEl.classList.add('hidden');
+  updatePinDots();
 }
 
 function pinPress(key) {
