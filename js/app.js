@@ -5,9 +5,11 @@ const SUPABASE_URL  = 'https://qcmrklucngcldvydaxlk.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbXJrbHVjbmdjbGR2eWRheGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMjc5NDUsImV4cCI6MjA5NDgwMzk0NX0.3rjdRhY6L-W0XqzZDvzjTZ8UPYVY-W1dZG_Y63ts2r4';
 const STORAGE_KEY   = 'tarjetasapp_v1';
 const BUCKET        = 'tarjetas-fotos';
-const CATEGORIAS    = [
-  'Combustible','Peajes','Comidas','Alojamiento',
-  'Materiales','Servicios','Mantenimiento','Otros'
+const CATEGORIAS = [
+  'Meals','Music & Entertainment','Parking','Fuel','Prints & Materials'
+];
+const LOCATIONS = [
+  'Aventura','Brickell','Downtown','Coconut Grove','Doral'
 ];
 
 // ─── DEMO DATA ─────────────────────────────────────────────────────────────
@@ -550,45 +552,42 @@ function renderEmpleado(tab = 'nuevo') {
 }
 
 function renderNuevoGastoHTML() {
-  const tarjeta = state.tarjetas.find(t => t.id === currentUser.tarjeta_id);
-  const tarjetaInfo = tarjeta
-    ? `<div class="tarjeta-card mini">
-        <div class="tarjeta-color-bar" style="background:${tarjeta.color||'#af9e78'}"></div>
-        <div class="tarjeta-info">
-          <span class="tarjeta-nombre">${tarjeta.nombre}</span>
-          <span class="tarjeta-limite">Límite: ${fmtPeso(tarjeta.limite)}</span>
-        </div>
-       </div>`
-    : `<div class="config-warn">No tenés tarjeta asignada. Contactá al administrador.</div>`;
-
-  const cats = CATEGORIAS.map(c =>
-    `<option value="${c}">${c}</option>`
-  ).join('');
+  const cats = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
+  const locs = LOCATIONS.map(l => `<option value="${l}">${l}</option>`).join('');
+  const fechaHoy = today();
+  const fechaHoyDisplay = fmtDate(fechaHoy);
 
   return `
     <div class="form-wrap">
-      ${tarjetaInfo}
       <div class="field">
-        <label>Fecha</label>
-        <input type="date" id="g-fecha" value="${today()}" max="${today()}">
+        <label>Fecha de reporte</label>
+        <input type="text" value="${fechaHoyDisplay}" disabled class="input-readonly">
+      </div>
+      <div class="field">
+        <label>Fecha del comprobante</label>
+        <input type="date" id="g-fecha" value="${fechaHoy}" max="${fechaHoy}">
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <select id="g-location"><option value="">Seleccioná...</option>${locs}</select>
       </div>
       <div class="field">
         <label>Categoría</label>
         <select id="g-cat"><option value="">Seleccioná...</option>${cats}</select>
       </div>
       <div class="field">
-        <label>Descripción</label>
-        <input type="text" id="g-desc" placeholder="Ej: Carga de combustible YPF" maxlength="120">
+        <label>Descripción <span class="field-opt">(opcional, máx. 100 caracteres)</span></label>
+        <input type="text" id="g-desc" placeholder="Descripción del gasto" maxlength="100">
       </div>
       <div class="field">
         <label>Monto</label>
         <div class="input-prefix-wrap">
           <span class="input-prefix">$</span>
-          <input type="number" id="g-monto" placeholder="0.00" min="0" step="0.01">
+          <input type="number" id="g-monto" placeholder="0" min="1" step="1">
         </div>
       </div>
       <div class="field">
-        <label>Foto del ticket <span class="field-opt">(opcional)</span></label>
+        <label>Foto del comprobante <span class="field-opt">(opcional)</span></label>
         <div class="photo-area" id="photo-area" onclick="document.getElementById('photo-input').click()">
           <div class="photo-placeholder" id="photo-placeholder">
             <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -598,9 +597,9 @@ function renderNuevoGastoHTML() {
             </svg>
             <span>Tocar para agregar foto</span>
           </div>
-          <img id="photo-preview" class="photo-preview hidden" alt="ticket">
+          <img id="photo-preview" class="photo-preview hidden" alt="comprobante">
         </div>
-        <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="previewPhoto(event)">
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="previewPhoto(event)">
       </div>
       <button class="btn-primary btn-full" id="btn-submit" onclick="submitGasto()">Registrar gasto</button>
     </div>`;
@@ -623,18 +622,17 @@ function previewPhoto(event) {
 }
 
 async function submitGasto() {
-  const tarjeta = state.tarjetas.find(t => t.id === currentUser.tarjeta_id);
-  if (!tarjeta) { toast('Sin tarjeta asignada', 'error'); return; }
+  const fecha_comprobante = document.getElementById('g-fecha')?.value;
+  const location          = document.getElementById('g-location')?.value;
+  const cat               = document.getElementById('g-cat')?.value;
+  const desc              = document.getElementById('g-desc')?.value.trim();
+  const montoRaw          = document.getElementById('g-monto')?.value;
+  const monto             = montoRaw ? parseInt(montoRaw, 10) : 0;
 
-  const fecha  = document.getElementById('g-fecha')?.value;
-  const cat    = document.getElementById('g-cat')?.value;
-  const desc   = document.getElementById('g-desc')?.value.trim();
-  const monto  = parseFloat(document.getElementById('g-monto')?.value);
-
-  if (!fecha)           { toast('Seleccioná la fecha', 'error'); return; }
-  if (!cat)             { toast('Seleccioná una categoría', 'error'); return; }
-  if (!desc)            { toast('Completá la descripción', 'error'); return; }
-  if (!monto || monto <= 0) { toast('Ingresá un monto válido', 'error'); return; }
+  if (!fecha_comprobante)        { toast('Seleccioná la fecha del comprobante', 'error'); return; }
+  if (!location)                 { toast('Seleccioná la location', 'error'); return; }
+  if (!cat)                      { toast('Seleccioná una categoría', 'error'); return; }
+  if (!monto || monto <= 0)      { toast('Ingresá un monto válido (entero positivo)', 'error'); return; }
 
   const btn = document.getElementById('btn-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
@@ -648,16 +646,20 @@ async function submitGasto() {
     } catch (_) { toast('No se pudo subir la foto', 'error'); }
   }
 
+  const tarjeta = state.tarjetas.find(t => t.id === currentUser.tarjeta_id);
+
   const gasto = {
-    tarjeta_id:  tarjeta.id,
-    empleado_id: currentUser.id,
-    fecha,
-    categoria:   cat,
-    descripcion: desc,
+    tarjeta_id:       tarjeta?.id || null,
+    empleado_id:      currentUser.id,
+    fecha:            fecha_comprobante,
+    fecha_reporte:    today(),
+    location,
+    categoria:        cat,
+    descripcion:      desc || null,
     monto,
     foto_url,
-    aprobado:    null,
-    created_at:  new Date().toISOString(),
+    aprobado:         null,
+    created_at:       new Date().toISOString(),
   };
 
   try {

@@ -93,6 +93,13 @@ img { max-width: 100%; display: block; }
   background: var(--dark); color: var(--accent); border-radius: 20px;
 }
 
+/* Readonly input */
+.input-readonly {
+  background: var(--light) !important;
+  color: var(--muted) !important;
+  cursor: default;
+}
+
 /* Login form */
 .login-form { margin-top: 8px; }
 .login-btn { margin-top: 4px; font-size: 16px; padding: 14px; letter-spacing: 0.2px; }
