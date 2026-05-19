@@ -93,21 +93,11 @@ img { max-width: 100%; display: block; }
   background: var(--dark); color: var(--accent); border-radius: 20px;
 }
 
-/* PIN inline section */
-.pin-section {
-  border-top: 1px solid var(--light);
-  margin-top: 16px; padding-top: 16px;
-}
-.pin-section-header {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-}
-.pin-back-link {
-  font-size: 13px; color: var(--muted); cursor: pointer;
-  padding: 4px 0; background: none; border: none; font-family: var(--font);
-}
-.pin-back-link:hover { color: var(--dark); }
-.pin-section-name { font-size: 15px; font-weight: 600; color: var(--dark); }
-.emp-btn.selected { border-color: var(--accent); background: var(--white); }
+/* Login form */
+.login-form { margin-top: 8px; }
+.login-btn { margin-top: 4px; font-size: 16px; padding: 14px; letter-spacing: 0.2px; }
+#login-pin { font-size: 22px; letter-spacing: 8px; text-align: center; }
+#login-pin::placeholder { font-size: 16px; letter-spacing: 6px; }
 
 /* PIN step */
 .back-link {

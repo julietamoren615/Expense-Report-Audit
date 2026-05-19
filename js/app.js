@@ -325,14 +325,9 @@ function renderWelcome() {
   _selectedEmpId = null;
   const app = document.getElementById('app');
 
-  const empList = state.empleados.length
-    ? state.empleados.map(e => `
-        <button class="emp-btn" onclick="selectEmp('${e.id}')">
-          <span class="emp-avatar">${e.nombre.charAt(0).toUpperCase()}</span>
-          <span class="emp-name">${e.nombre}</span>
-          ${e.is_admin ? '<span class="badge-admin">Admin</span>' : ''}
-        </button>`).join('')
-    : `<p class="empty-state" style="padding:24px">Sin empleados cargados</p>`;
+  const empOptions = state.empleados.length
+    ? state.empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('')
+    : '';
 
   app.innerHTML = `
     <div class="welcome-wrap">
@@ -340,26 +335,25 @@ function renderWelcome() {
         <div class="welcome-logo">${logoSVG()}</div>
         <h1 class="welcome-title">TarjetasApp</h1>
         <p class="welcome-sub">Gestión de gastos corporativos</p>
-        <div class="emp-list" id="emp-list">${empList}</div>
-        <div class="pin-section hidden" id="pin-section">
-          <div class="pin-section-header">
-            <button class="pin-back-link" onclick="backToList()">&#8592; Volver</button>
-            <span class="pin-section-name" id="pin-section-name"></span>
+
+        <div class="login-form">
+          <div class="field">
+            <label>Tu nombre</label>
+            ${state.empleados.length
+              ? `<select id="login-emp"><option value="">Seleccioná...</option>${empOptions}</select>`
+              : `<p class="empty-state" style="padding:12px 0;font-size:13px">Sin empleados cargados</p>`
+            }
           </div>
-          <div class="pin-dots" id="pin-dots">
-            <span class="pin-dot" id="pd0"></span>
-            <span class="pin-dot" id="pd1"></span>
-            <span class="pin-dot" id="pd2"></span>
-            <span class="pin-dot" id="pd3"></span>
+          <div class="field">
+            <label>PIN (4 dígitos)</label>
+            <input type="password" id="login-pin" maxlength="4" inputmode="numeric"
+              placeholder="• • • •" autocomplete="off"
+              onkeydown="if(event.key==='Enter') loginSubmit()">
           </div>
-          <div id="pin-error" class="pin-error hidden">PIN incorrecto</div>
-          <div class="pin-grid">
-            ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => k === ''
-              ? '<span></span>'
-              : `<button class="pin-key" onclick="pinPress('${k}')">${k}</button>`
-            ).join('')}
-          </div>
+          <div id="login-error" class="pin-error hidden" style="margin-bottom:8px">PIN o usuario incorrecto</div>
+          <button class="btn-primary btn-full login-btn" onclick="loginSubmit()">Entrar &rarr;</button>
         </div>
+
         ${renderInstallBtn()}
       </div>
     </div>`;
@@ -375,38 +369,30 @@ function logoSVG() {
   </svg>`;
 }
 
-function selectEmp(id) {
-  _selectedEmpId = id;
-  _pendingPin = '';
-  const emp = state.empleados.find(e => e.id === id);
-  if (!emp) return;
+function loginSubmit() {
+  const empId = document.getElementById('login-emp')?.value;
+  const pin   = document.getElementById('login-pin')?.value;
+  const errEl = document.getElementById('login-error');
 
-  // highlight selected
-  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('selected'));
-  const btn = document.querySelector(`.emp-btn[onclick="selectEmp('${id}')"]`);
-  if (btn) btn.classList.add('selected');
+  if (!empId) { toast('Seleccioná tu nombre', 'error'); return; }
+  if (!pin)   { toast('Ingresá tu PIN', 'error'); return; }
 
-  // show pin section
-  const pinSection = document.getElementById('pin-section');
-  const nameEl = document.getElementById('pin-section-name');
-  if (nameEl) nameEl.textContent = emp.nombre;
-  if (pinSection) pinSection.classList.remove('hidden');
-  updatePinDots();
+  const emp = state.empleados.find(e => e.id === empId);
+  if (!emp || String(emp.pin) !== String(pin)) {
+    if (errEl) errEl.classList.remove('hidden');
+    const pinEl = document.getElementById('login-pin');
+    if (pinEl) { pinEl.value = ''; pinEl.focus(); }
+    return;
+  }
 
-  // scroll down to PIN
-  pinSection && pinSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  currentUser = emp;
+  if (emp.is_admin) renderAdmin('gastos');
+  else renderEmpleado('nuevo');
 }
 
-function backToList() {
-  _pendingPin = '';
-  _selectedEmpId = null;
-  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('selected'));
-  const pinSection = document.getElementById('pin-section');
-  const errEl = document.getElementById('pin-error');
-  if (pinSection) pinSection.classList.add('hidden');
-  if (errEl) errEl.classList.add('hidden');
-  updatePinDots();
-}
+// kept for compatibility — not used in new flow
+function selectEmp(id) {}
+function backToList() {}
 
 function pinPress(key) {
   if (key === '⌫') {
