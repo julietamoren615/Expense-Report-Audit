@@ -579,6 +579,56 @@ select { background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' 
 .admin-tarjetas-wrap ~ .fab,
 .admin-empleados-wrap ~ .fab { bottom: 24px; }
 
+/* ===== SCORE COMPLIANCE ===== */
+:root {
+  --score-green:    #2e7d52;
+  --score-green-bg: #d6f0e2;
+  --score-red:      #b92c2c;
+  --score-red-bg:   #fde3e1;
+}
+
+.score-section { padding: 16px 16px 4px; }
+.score-section-title {
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 0 0 10px; display: flex; align-items: center; gap: 8px;
+}
+.demo-badge {
+  font-size: 11px; font-weight: 500; color: var(--muted);
+  background: var(--light); padding: 2px 8px; border-radius: 20px;
+  text-transform: none; letter-spacing: 0;
+}
+
+.score-card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow);
+}
+.score-card-top {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.score-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 700; flex-shrink: 0;
+}
+.score-info { flex: 1; min-width: 0; }
+.score-nombre { font-size: 15px; font-weight: 600; display: block; }
+.score-stats {
+  display: flex; gap: 10px; margin-top: 3px;
+  font-size: 12px; color: var(--muted); flex-wrap: wrap;
+}
+.score-ok   { color: var(--score-green); font-weight: 500; }
+.score-late { color: var(--score-red);   font-weight: 500; }
+.score-pct  { font-size: 26px; font-weight: 700; flex-shrink: 0; }
+
+.score-bar-track {
+  height: 6px; background: var(--light); border-radius: 4px;
+  overflow: hidden; margin-bottom: 6px;
+}
+.score-bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.score-avg { font-size: 12px; color: var(--muted); }
+.score-avg strong { color: var(--dark); }
+
 /* ===== GASTO DETAIL MODAL ===== */
 .detail-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
 .detail-row {

@@ -1187,8 +1187,83 @@ async function deleteTarjetaConfirmed(id) {
 }
 
 // ADMIN — EMPLEADOS ───────────────────────────────────────────────────────────
+
+// Simulated compliance data (ordered worst → best)
+const DEMO_SCORES = [
+  { nombre:'Daniel', score:42, total:12, onTime:5,  late:7, avgDays:5.8 },
+  { nombre:'Joel',   score:58, total:12, onTime:7,  late:5, avgDays:4.2 },
+  { nombre:'Giorgio',score:67, total:12, onTime:8,  late:4, avgDays:3.5 },
+  { nombre:'Emma',   score:83, total:12, onTime:10, late:2, avgDays:1.8 },
+  { nombre:'Marta',  score:92, total:12, onTime:11, late:1, avgDays:0.9 },
+];
+
+function calcEmployeeScore(empId) {
+  const gastos = state.gastos.filter(g => g.empleado_id === empId);
+  if (!gastos.length) return null;
+  let onTime = 0, late = 0, totalDays = 0;
+  gastos.forEach(g => {
+    const reporte = g.fecha_reporte || g.created_at?.slice(0,10);
+    if (!g.fecha || !reporte) { onTime++; return; }
+    const days = Math.floor((new Date(reporte) - new Date(g.fecha)) / 86400000);
+    totalDays += Math.max(0, days);
+    if (days <= 3) onTime++; else late++;
+  });
+  const total = gastos.length;
+  return {
+    nombre: '',
+    score: Math.round((onTime / total) * 100),
+    total, onTime, late,
+    avgDays: (totalDays / total).toFixed(1),
+  };
+}
+
+function scoreCardHTML(s) {
+  const isRed   = s.score < 80;
+  const color   = isRed ? 'var(--score-red)' : 'var(--score-green)';
+  const bgColor = isRed ? 'var(--score-red-bg)' : 'var(--score-green-bg)';
+  return `
+    <div class="score-card" style="border-left:4px solid ${color}">
+      <div class="score-card-top">
+        <div class="score-avatar" style="background:${bgColor};color:${color}">
+          ${s.nombre.charAt(0).toUpperCase()}
+        </div>
+        <div class="score-info">
+          <span class="score-nombre">${s.nombre}</span>
+          <div class="score-stats">
+            <span>${s.total} gastos</span>
+            <span class="score-ok">&#10003; ${s.onTime} a tiempo</span>
+            <span class="score-late">&#10005; ${s.late} tarde</span>
+          </div>
+        </div>
+        <div class="score-pct" style="color:${color}">${s.score}%</div>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill" style="width:${s.score}%;background:${color}"></div>
+      </div>
+      <div class="score-avg">Promedio de demora: <strong>${s.avgDays} días</strong></div>
+    </div>`;
+}
+
 function renderAdminEmpleadosHTML() {
-  const rows = state.empleados.length
+  // Real scores from DB (non-admin employees with gastos)
+  const realScores = state.empleados
+    .filter(e => !e.is_admin)
+    .map(e => {
+      const s = calcEmployeeScore(e.id);
+      return s ? { ...s, nombre: e.nombre } : null;
+    })
+    .filter(Boolean)
+    .sort((a,b) => a.score - b.score);
+
+  const showDemo  = realScores.length === 0;
+  const scores    = showDemo ? DEMO_SCORES : realScores;
+  const demoLabel = showDemo
+    ? `<div class="demo-badge">&#9432; Datos de simulación</div>`
+    : '';
+
+  const scoreRows = scores.map(scoreCardHTML).join('');
+
+  const empRows = state.empleados.length
     ? state.empleados.map(e => `
         <div class="emp-card">
           <span class="emp-avatar">${e.nombre.charAt(0).toUpperCase()}</span>
@@ -1206,7 +1281,12 @@ function renderAdminEmpleadosHTML() {
 
   return `
     <div class="admin-empleados-wrap">
-      ${rows}
+      <div class="score-section">
+        <div class="score-section-title">Score de cumplimiento ${demoLabel}</div>
+        ${scoreRows}
+      </div>
+      <div class="score-section-title" style="padding:0 16px 8px">Gestión de empleados</div>
+      ${empRows}
       <button class="fab" onclick="newEmpleado()" title="Nuevo empleado">+</button>
     </div>`;
 }
